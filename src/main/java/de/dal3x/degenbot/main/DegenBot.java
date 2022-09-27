@@ -13,8 +13,9 @@ public class DegenBot {
     public DegenBot() {
         Dotenv environment = loadEnv();
         this.twitch = new TwitchComponent(environment.get("TWITCH_PROVIDER"),environment.get("TWITCH_TOKEN"));
+        this.twitch.registerEvents();
+        this.discord = new DiscordComponent(environment.get("DISCORD_TOKEN"), environment.get("ACTIVITY"));
     }
-
 
     private Dotenv loadEnv() {
         return Dotenv.configure().directory(DefaultValues.envPath).filename(DefaultValues.envFile).load();
