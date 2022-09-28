@@ -4,7 +4,8 @@ import com.github.philippheuer.credentialmanager.domain.OAuth2Credential;
 import com.github.philippheuer.events4j.simple.SimpleEventHandler;
 import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
-import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
+import com.github.twitch4j.events.ChannelGoLiveEvent;
+import de.dal3x.degenbot.main.DegenBot;
 
 /**
  * The twitch component of the bot. It is responsible all for interactions with the twitch API.
@@ -12,30 +13,36 @@ import com.github.twitch4j.chat.events.channel.ChannelMessageEvent;
 public class TwitchComponent {
 
     /** The TwitchClient component, which characterizes the connection to twitch. */
-    private TwitchClient component;
+    private final TwitchClient component;
+
+    /** An instance of the bot which this component belongs to */
+    private final DegenBot degenbot;
 
     /** Builds the Twitch Component by opening a connection to twitch with the token using the given provider. */
-    public TwitchComponent(String provider, String token) {
+    public TwitchComponent(DegenBot bot, String provider, String token) {
+        this.degenbot = bot;
         OAuth2Credential credential = new OAuth2Credential(provider, token);
         this.component = TwitchClientBuilder.builder()
                 .withDefaultAuthToken(credential)
                 .withEnableHelix(true)
-                .withEnableChat(true)
-                .withChatAccount(credential)
+                //.withEnableChat(true)
+                //.withChatAccount(credential)
                 .withDefaultEventHandler(SimpleEventHandler.class)
                 .build();
+        activateLiveListener();
     }
 
-    /** Returns the TwitchClient component. */
-    public TwitchClient getComponent() {
-        return component;
-    }
-
-    /** Registers all needed events */
-    public void registerEvents() {
-        this.component.getChat().joinChannel("drhazuul_vr");
-        component.getEventManager().onEvent(ChannelMessageEvent.class, event -> {
-            System.out.println("[" + event.getChannel().getName() + "] " + event.getUser().getName() + ": " + event.getMessage());
+    /** Activates the live listener. Only call this once on startup */
+    private void activateLiveListener() {
+        this.component.getEventManager().getEventHandler(SimpleEventHandler.class).onEvent(ChannelGoLiveEvent.class,event -> {
+            String link = "https://www.twitch.tv/" + event.getChannel().getId();
+            TwitchStream streamInfo = new TwitchStream(event.getChannel().getName(), event.getStream().getTitle(), event.getStream().getGameName(), link, event.getStream().getThumbnailUrl());
+            this.degenbot.postLiveChannel(streamInfo);
         });
+    }
+
+    /** Registers an event listener if the channel with the provided name goes live */
+    public void registerLiveListener(String channel) {
+        this.component.getClientHelper().enableStreamEventListener(channel);
     }
 }

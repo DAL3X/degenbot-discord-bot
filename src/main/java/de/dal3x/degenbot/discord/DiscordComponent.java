@@ -1,8 +1,11 @@
 package de.dal3x.degenbot.discord;
 
+import de.dal3x.degenbot.main.DegenBot;
+import de.dal3x.degenbot.twitch.TwitchStream;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 /**
  * The discord component of the bot. It is responsible all for interactions with the discord API.
@@ -10,17 +13,30 @@ import net.dv8tion.jda.api.entities.Activity;
 public class DiscordComponent {
 
     /** The JDA component, which characterizes the connection to discord. */
-    private JDA component;
+    private final JDA component;
+
+    /** An instance of the bot which this component belongs to */
+    private final DegenBot degenbot;
 
     /** Builds the Discord Component by opening a connection with a bot-token and activity for the online bot. */
-    public DiscordComponent(String token, String activity) {
+    public DiscordComponent(DegenBot bot, String token, String activity) {
+        this.degenbot = bot;
         JDABuilder builder = JDABuilder.createDefault(token);
         builder.setActivity(Activity.playing(activity));
         this.component = builder.build();
+        try {
+            this.component.awaitReady();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    /** Returns the JDA component. */
-    public JDA getComponent() {
-        return this.component;
+    /** Posts the live notification for a given stream */
+    public void postLiveNotification(TwitchStream stream) {
+        TextChannel channel = component.getTextChannelById("975801471062909062");
+        channel.sendMessage("[" + stream.getName() + "] just went live playing {" + stream.getGame() + "}: \n" + stream.getTitle()).queue();
+        channel.sendMessage(stream.getLink()).queue();
+        channel.sendMessage(stream.getPictureURL()).queue();
     }
+
 }
