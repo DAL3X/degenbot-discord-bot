@@ -35,6 +35,8 @@ public class CommandExecutor extends ListenerAdapter {
         commands.addCommands(Commands.slash("degen_mark", CommandDescriptions.remove)
                 .addOptions(new OptionData(OptionType.STRING, "text-channel-id", CommandDescriptions.mark).setRequired(true))
                 .setDefaultPermissions(DefaultMemberPermissions.DISABLED).setGuildOnly(true));
+        commands.addCommands(Commands.slash("degen_list", CommandDescriptions.list)
+                .setDefaultPermissions(DefaultMemberPermissions.DISABLED).setGuildOnly(true));
         commands.queue();
     }
     /** Executes commands when detected. */
@@ -58,6 +60,9 @@ public class CommandExecutor extends ListenerAdapter {
                 String markChannelID = event.getOption("text-channel-id").getAsString();
                 bot.updateDiscordTarget(markChannelID);
                 event.reply("Text channel marked as go live notification channel!").queue();
+                break;
+            case "degen_list":
+                event.reply("Streamer on the notification list: " + bot.getInfoPacket().getTracking().toString()).queue();
                 break;
             default:
                 // Do nothing

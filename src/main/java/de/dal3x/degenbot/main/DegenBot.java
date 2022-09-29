@@ -104,4 +104,8 @@ public class DegenBot {
         saveInfoPacket();
     }
 
+    /** Returns the InfoPacket containing all life values for this bot */
+    public InfoPacket getInfoPacket() {
+        return infoPacket;
+    }
 }
