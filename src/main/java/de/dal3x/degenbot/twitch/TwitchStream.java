@@ -1,6 +1,8 @@
 package de.dal3x.degenbot.twitch;
 
-/** Contains all the stream information to transfer between components */
+/** Contains all the stream information to transfer between components.
+ * This class is the interface to transfer data between the twitch and discord components of the bot.
+ */
 public class TwitchStream {
 
     /** The channel name */
