@@ -4,9 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import de.dal3x.degenbot.config.DefaultValues;
 import de.dal3x.degenbot.discord.DiscordComponent;
-import de.dal3x.degenbot.serializable.InfoPacket;
+import de.dal3x.degenbot.structures.InfoPacket;
 import de.dal3x.degenbot.twitch.TwitchComponent;
-import de.dal3x.degenbot.twitch.TwitchStream;
+import de.dal3x.degenbot.structures.TwitchStream;
 import io.github.cdimascio.dotenv.Dotenv;
 
 import java.io.File;

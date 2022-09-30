@@ -1,4 +1,4 @@
-package de.dal3x.degenbot.serializable;
+package de.dal3x.degenbot.structures;
 
 import java.util.HashSet;
 import java.util.Set;

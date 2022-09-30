@@ -6,6 +6,7 @@ import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
 import com.github.twitch4j.events.ChannelGoLiveEvent;
 import de.dal3x.degenbot.main.DegenBot;
+import de.dal3x.degenbot.structures.TwitchStream;
 
 /**
  * The twitch component of the bot. It is responsible all for interactions with the twitch API.
@@ -40,7 +41,8 @@ public class TwitchComponent {
     private void activateLiveListener() {
         this.component.getEventManager().getEventHandler(SimpleEventHandler.class).onEvent(ChannelGoLiveEvent.class,event -> {
             String link = this.twitchURL + event.getChannel().getName();
-            TwitchStream streamInfo = new TwitchStream(event.getChannel().getName(), event.getStream().getTitle(), event.getStream().getGameName(), link, event.getStream().getThumbnailUrl());
+            String category = this.twitchURL + "directory/game/" + event.getStream().getGameName();
+            TwitchStream streamInfo = new TwitchStream(event.getChannel().getName(), event.getStream().getTitle(), event.getStream().getGameName(), link, event.getStream().getThumbnailUrl(1280, 720), category);
             this.degenbot.postLiveChannel(streamInfo);
         });
     }

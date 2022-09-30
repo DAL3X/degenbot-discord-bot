@@ -1,4 +1,4 @@
-package de.dal3x.degenbot.twitch;
+package de.dal3x.degenbot.structures;
 
 /** Contains all the stream information to transfer between components.
  * This class is the interface to transfer data between the twitch and discord components of the bot.
@@ -15,14 +15,17 @@ public class TwitchStream {
     String link;
     /** A URL for the stream thumbnail */
     String pictureURL;
+    /** A URL to the streams category */
+    String categoryURL;
 
     /** Creates a TwitchStream object to encapsulate all given variables */
-    public TwitchStream(String name, String title, String game, String link, String pictureURL) {
+    public TwitchStream(String name, String title, String game, String link, String pictureURL, String categoryURL) {
         this.name = name;
         this.title = title;
         this.game = game;
         this.link = link;
         this.pictureURL = pictureURL;
+        this.categoryURL = categoryURL;
     }
 
     /** Returns the channel name */
