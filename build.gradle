@@ -5,6 +5,8 @@ plugins {
 group 'de.dal3x'
 version '1.0'
 
+apply plugin: 'java'
+
 repositories {
     mavenCentral()
 }
@@ -24,4 +26,14 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    manifest {
+        attributes 'Main-Class': 'de.dal3x.degenbot.main.DegenBot'
+    }
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
 }
