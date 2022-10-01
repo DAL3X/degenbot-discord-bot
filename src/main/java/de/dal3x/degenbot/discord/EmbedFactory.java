@@ -20,11 +20,4 @@ public class EmbedFactory {
         return builder.build();
     }
 
-    /** Updates a thumbnail on a given MessageEmbed. */
-    public static MessageEmbed updateThumbnail(TwitchStream stream, MessageEmbed embed, String thumbnail) {
-        EmbedBuilder builder = new EmbedBuilder(embed);
-        builder.setImage(thumbnail);
-        return builder.build();
-    }
-
 }

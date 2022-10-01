@@ -8,10 +8,6 @@ import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
 /**
  * The discord component of the bot. It is responsible all for interactions with the discord API.
  */
@@ -40,30 +36,8 @@ public class DiscordComponent {
         TextChannel channel = component.getTextChannelById(targetChannel);
         if (channel != null) {
             MessageEmbed embed = EmbedFactory.createEmbed(stream);
-            channel.sendMessageEmbeds(embed).queue((message) -> {
-                long messageId = message.getIdLong();
-                startNotificationThumbnailUpdate(targetChannel, messageId, embed,  stream);
-            });
+            channel.sendMessageEmbeds(embed).queue();
         }
     }
-
-    /** Updates the Thumbnail for a given embed after 600 sec (10 minutes). */
-    public void startNotificationThumbnailUpdate(String targetChannel, long messageID, MessageEmbed embed, TwitchStream stream) {
-        ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-        Runnable task = () -> updateNotificationThumbnail(targetChannel, messageID, embed, stream);
-        executor.schedule(task, 60, TimeUnit.SECONDS);
-        executor.shutdown();
-    }
-
-    /** Updates the Thumbnail for a given embed. */
-    public void updateNotificationThumbnail(String targetChannel, long messageID, MessageEmbed embed, TwitchStream stream) {
-        MessageEmbed embedUpdate = EmbedFactory.updateThumbnail(stream, embed, stream.getPictureURL());
-        TextChannel channel = component.getTextChannelById(targetChannel);
-        if (channel != null) {
-            channel.editMessageEmbedsById(messageID, embedUpdate).queue();
-        }
-    }
-
-
 
 }
