@@ -7,6 +7,8 @@ public class TwitchStream {
 
     /** The channel name */
     String name;
+    /** The channel id */
+    String channelID;
     /** The stream title */
     String title;
     /** The stream category */
@@ -19,8 +21,9 @@ public class TwitchStream {
     String categoryURL;
 
     /** Creates a TwitchStream object to encapsulate all given variables */
-    public TwitchStream(String name, String title, String game, String link, String pictureURL, String categoryURL) {
+    public TwitchStream(String name, String channelID, String title, String game, String link, String pictureURL, String categoryURL) {
         this.name = name;
+        this.channelID = channelID;
         this.title = title;
         this.game = game;
         this.link = link;

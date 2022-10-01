@@ -42,7 +42,9 @@ public class TwitchComponent {
         this.component.getEventManager().getEventHandler(SimpleEventHandler.class).onEvent(ChannelGoLiveEvent.class,event -> {
             String link = this.twitchURL + event.getChannel().getName();
             String category = this.twitchURL + "directory/game/" + event.getStream().getGameName();
-            TwitchStream streamInfo = new TwitchStream(event.getChannel().getName(), event.getStream().getTitle(), event.getStream().getGameName(), link, event.getStream().getThumbnailUrl(1280, 720), category);
+            TwitchStream streamInfo = new TwitchStream(event.getChannel().getName(), event.getChannel().getId(),
+                    event.getStream().getTitle(), event.getStream().getGameName(),
+                    link, event.getStream().getThumbnailUrl(1280, 720), category);
             this.degenbot.postLiveChannel(streamInfo);
         });
     }
@@ -56,4 +58,5 @@ public class TwitchComponent {
     public void unregisterLiveListener(String channel) {
         this.component.getClientHelper().disableStreamEventListener(channel);
     }
+
 }

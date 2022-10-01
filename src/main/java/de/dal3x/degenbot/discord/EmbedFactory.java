@@ -19,4 +19,12 @@ public class EmbedFactory {
         builder.addField("Category: ", stream.getGame(), false);
         return builder.build();
     }
+
+    /** Updates a thumbnail on a given MessageEmbed. */
+    public static MessageEmbed updateThumbnail(TwitchStream stream, MessageEmbed embed, String thumbnail) {
+        EmbedBuilder builder = new EmbedBuilder(embed);
+        builder.setImage(thumbnail);
+        return builder.build();
+    }
+
 }
