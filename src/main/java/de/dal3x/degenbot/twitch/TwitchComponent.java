@@ -43,8 +43,8 @@ public class TwitchComponent {
             String link = this.twitchURL + event.getChannel().getName();
             String category = this.twitchURL + "directory/game/" + event.getStream().getGameName();
             TwitchStream streamInfo = new TwitchStream(event.getChannel().getName(), event.getChannel().getId(),
-                    event.getStream().getTitle(), event.getStream().getGameName(),
-                    link, event.getStream().getThumbnailUrl(1280, 720), category);
+                    event.getStream().getTitle(), event.getStream().getGameName(),  link,
+                    event.getStream().getThumbnailUrl(1280, 720)+"?t="+System.currentTimeMillis(), category);
             this.degenbot.postLiveChannel(streamInfo);
         });
     }
