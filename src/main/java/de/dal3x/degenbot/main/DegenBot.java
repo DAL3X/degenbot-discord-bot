@@ -5,13 +5,14 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import de.dal3x.degenbot.config.DefaultValues;
 import de.dal3x.degenbot.discord.DiscordComponent;
 import de.dal3x.degenbot.structures.InfoPacket;
+import de.dal3x.degenbot.structures.TrackingInfo;
 import de.dal3x.degenbot.twitch.TwitchComponent;
 import de.dal3x.degenbot.structures.TwitchStream;
 import io.github.cdimascio.dotenv.Dotenv;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Set;
+import java.util.Map;
 
 /**
  * The main part of the bot. This class creates the link between the discord and twitch module.
@@ -47,7 +48,18 @@ public class DegenBot {
 
     /** Delegates the live post to the discord component. */
     public void postLiveChannel(TwitchStream stream) {
-        discord.postLiveNotification(this.infoPacket.getDiscordTarget(), stream);
+        String targetChannel = this.infoPacket.getDiscordDefaultTarget();
+        TrackingInfo track = this.infoPacket.getTracking().get(stream.getName());
+        if (!track.getChannel().equals("")) {
+            // If a non default channel is set, overwrite it here
+            targetChannel = track.getChannel();
+        }
+        if (!track.getMessage().equals("")) {
+            discord.postLiveNotification(targetChannel, stream, track.getMessage());
+        }
+        else {
+            discord.postLiveNotification(targetChannel, stream);
+        }
     }
 
     /** Loads all tracked channels from a file and enables their tracking. Should only be called on start once. */
@@ -61,7 +73,7 @@ public class DegenBot {
         ObjectMapper mapper = new YAMLMapper();
         try {
             this.infoPacket = mapper.readValue(trackingFile, InfoPacket.class);
-            for (String channel : this.infoPacket.getTracking()){
+            for (String channel : this.infoPacket.getTracking().keySet()){
                 twitch.registerLiveListener(channel);
             }
         } catch (IOException e) {
@@ -69,10 +81,10 @@ public class DegenBot {
         }
     }
 
-    /** Adds a channel with the given name to the list of tracked channels and saves it. */
-    public void addToTrackingList(String name) {
-        Set<String> tracking = this.infoPacket.getTracking();
-        tracking.add(name);
+    /** Adds a channel with the given name, target channel and optional message to the list of tracked channels and saves it. */
+    public void addToTrackingList(String name, String channel, String message) {
+        Map<String, TrackingInfo> tracking = this.infoPacket.getTracking();
+        tracking.put(name, new TrackingInfo(name, channel, message));
         this.infoPacket.setTracking(tracking);
         this.twitch.registerLiveListener(name);
         saveInfoPacket();
@@ -80,7 +92,7 @@ public class DegenBot {
 
     /** Removes a channel with the given name from the list of tracked channels and saves it. */
     public void removeFromTrackingList(String name) {
-        Set<String> tracking = this.infoPacket.getTracking();
+        Map<String, TrackingInfo> tracking = this.infoPacket.getTracking();
         tracking.remove(name);
         this.infoPacket.setTracking(tracking);
         this.twitch.unregisterLiveListener(name);
@@ -98,9 +110,9 @@ public class DegenBot {
         }
     }
 
-    /** Changes and saves the channel ID of the discord channel to post notifications in. */
-    public void updateDiscordTarget(String id) {
-        this.infoPacket.setDiscordTarget(id);
+    /** Changes and saves the channel ID of the default discord channel to post notifications in. */
+    public void updateDiscordDefaultTarget(String id) {
+        this.infoPacket.setDiscordDefaultTarget(id);
         saveInfoPacket();
     }
 

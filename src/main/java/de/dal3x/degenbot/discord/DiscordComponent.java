@@ -31,11 +31,24 @@ public class DiscordComponent {
         executor.registerCommands(this.component);
     }
 
-    /** Posts the live notification for a given stream. */
+    /** Posts the live notification for a given stream without a message. */
     public void postLiveNotification(String targetChannel, TwitchStream stream) {
         TextChannel channel = component.getTextChannelById(targetChannel);
         if (channel != null) {
             MessageEmbed embed = EmbedFactory.createEmbed(stream);
+            channel.sendMessageEmbeds(embed).queue();
+        }
+    }
+
+    /** Posts the live notification for a given stream with a message. */
+    public void postLiveNotification(String targetChannel, TwitchStream stream, String message) {
+        TextChannel channel = component.getTextChannelById(targetChannel);
+        if (channel != null) {
+            MessageEmbed embed = EmbedFactory.createEmbed(stream);
+            // Create embed (because it takes some time), then post optional message, then post embed.
+            if (!message.equals("")) {
+                channel.sendMessage(message).queue();
+            }
             channel.sendMessageEmbeds(embed).queue();
         }
     }
