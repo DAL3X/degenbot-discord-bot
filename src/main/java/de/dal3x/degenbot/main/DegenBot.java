@@ -12,12 +12,26 @@ import io.github.cdimascio.dotenv.Dotenv;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The main part of the bot. This class creates the link between the discord and twitch module.
  */
 public class DegenBot {
+
+    /** Determines if the bot is in testing mode. If this is true, the bot will post events without cool-downs. */
+    private final boolean testMode = false;
+
+    /** Set of all channel ids that are on cool-down. */
+    private Set<String> cooldown;
+
+    /** The Executor responsible for handling time sensitive events. */
+    private ScheduledExecutorService executor;
 
     /** The part of the bot responsible for handling discord data. */
     private final DiscordComponent discord;
@@ -31,7 +45,9 @@ public class DegenBot {
     /** Creates a bot instance. Should only be called once on startup. */
     public DegenBot() {
         Dotenv environment = loadEnv();
-        this.twitch = new TwitchComponent(this, environment.get("TWITCH_PROVIDER"), environment.get("TWITCH_TOKEN"), environment.get("TWITCH_URL"));
+        this.cooldown = new HashSet<>();
+        this.executor = Executors.newSingleThreadScheduledExecutor();
+        this.twitch = new TwitchComponent(this, environment.get("TWITCH_PROVIDER"), environment.get("TWITCH_TOKEN"), environment.get("TWITCH_URL"), environment.get("COOLDOWN"));
         loadInfoPacket();
         this.discord = new DiscordComponent(this, environment.get("DISCORD_TOKEN"), environment.get("ACTIVITY"));
     }
@@ -94,6 +110,7 @@ public class DegenBot {
     public void removeFromTrackingList(String name) {
         Map<String, TrackingInfo> tracking = this.infoPacket.getTracking();
         tracking.remove(name);
+        this.cooldown.remove(name);
         this.infoPacket.setTracking(tracking);
         this.twitch.unregisterLiveListener(name);
         saveInfoPacket();
@@ -108,6 +125,21 @@ public class DegenBot {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /** Checks if a channel is on cooldown. */
+    public boolean hasCooldown(String channelID) {
+        return this.cooldown.contains(channelID);
+    }
+
+    /** Sets a channel cooldown to a specified number of minutes. */
+    public void setCooldown(String name, int minutes) {
+        if (this.testMode) {
+            return;
+        }
+        this.cooldown.add(name);
+        Runnable task = () -> {this.cooldown.remove(name);};
+        this.executor.schedule(task, minutes, TimeUnit.MINUTES);
     }
 
     /** Changes and saves the channel ID of the default discord channel to post notifications in. */
