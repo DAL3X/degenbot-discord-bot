@@ -49,7 +49,7 @@ public class TwitchComponent {
                 // If on cooldown, just ignore everything
                 return;
             }
-            String link = this.twitchURL + event.getChannel().getName();
+            String link = this.twitchURL + event.getChannel().getName().toLowerCase();
             String category = this.twitchURL + "directory/game/" + event.getStream().getGameName();
             TwitchStream streamInfo = new TwitchStream(event.getChannel().getName(), event.getChannel().getId(),
                     event.getStream().getTitle(), event.getStream().getGameName(),  link,

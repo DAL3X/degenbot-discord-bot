@@ -28,10 +28,10 @@ public class DegenBot {
     private final boolean testMode = false;
 
     /** Set of all channel ids that are on cool-down. */
-    private Set<String> cooldown;
+    private final Set<String> cooldown;
 
     /** The Executor responsible for handling time sensitive events. */
-    private ScheduledExecutorService executor;
+    private final ScheduledExecutorService executor;
 
     /** The part of the bot responsible for handling discord data. */
     private final DiscordComponent discord;
@@ -65,7 +65,7 @@ public class DegenBot {
     /** Delegates the live post to the discord component. */
     public void postLiveChannel(TwitchStream stream) {
         String targetChannel = this.infoPacket.getDiscordDefaultTarget();
-        TrackingInfo track = this.infoPacket.getTracking().get(stream.getName());
+        TrackingInfo track = this.infoPacket.getTracking().get(stream.getName().toLowerCase());
         if (!track.getChannel().equals("")) {
             // If a non default channel is set, overwrite it here
             targetChannel = track.getChannel();
@@ -100,7 +100,7 @@ public class DegenBot {
     /** Adds a channel with the given name, target channel and optional message to the list of tracked channels and saves it. */
     public void addToTrackingList(String name, String channel, String message) {
         Map<String, TrackingInfo> tracking = this.infoPacket.getTracking();
-        tracking.put(name, new TrackingInfo(name, channel, message));
+        tracking.put(name.toLowerCase(), new TrackingInfo(channel, message));
         this.infoPacket.setTracking(tracking);
         this.twitch.registerLiveListener(name);
         saveInfoPacket();
@@ -109,8 +109,8 @@ public class DegenBot {
     /** Removes a channel with the given name from the list of tracked channels and saves it. */
     public void removeFromTrackingList(String name) {
         Map<String, TrackingInfo> tracking = this.infoPacket.getTracking();
-        tracking.remove(name);
-        this.cooldown.remove(name);
+        tracking.remove(name.toLowerCase());
+        this.cooldown.remove(name.toLowerCase());
         this.infoPacket.setTracking(tracking);
         this.twitch.unregisterLiveListener(name);
         saveInfoPacket();
@@ -129,7 +129,7 @@ public class DegenBot {
 
     /** Checks if a channel is on cooldown. */
     public boolean hasCooldown(String channelID) {
-        return this.cooldown.contains(channelID);
+        return this.cooldown.contains(channelID.toLowerCase());
     }
 
     /** Sets a channel cooldown to a specified number of minutes. */
@@ -137,8 +137,8 @@ public class DegenBot {
         if (this.testMode) {
             return;
         }
-        this.cooldown.add(name);
-        Runnable task = () -> {this.cooldown.remove(name);};
+        this.cooldown.add(name.toLowerCase());
+        Runnable task = () -> {this.cooldown.remove(name.toLowerCase());};
         this.executor.schedule(task, minutes, TimeUnit.MINUTES);
     }
 
