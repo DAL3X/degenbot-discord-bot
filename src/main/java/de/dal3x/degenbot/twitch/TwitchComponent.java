@@ -6,8 +6,12 @@ import com.github.twitch4j.TwitchClient;
 import com.github.twitch4j.TwitchClientBuilder;
 import com.github.twitch4j.events.ChannelGoLiveEvent;
 import com.github.twitch4j.events.ChannelGoOfflineEvent;
+import com.github.twitch4j.helix.domain.User;
+import com.github.twitch4j.helix.domain.UserList;
 import de.dal3x.degenbot.main.DegenBot;
 import de.dal3x.degenbot.structures.TwitchStream;
+
+import java.util.Arrays;
 
 /**
  * The twitch component of the bot. It is responsible all for interactions with the twitch API.
@@ -23,6 +27,9 @@ public class TwitchComponent {
     /** The url used to access the twitch servers. */
     private final String twitchURL;
 
+    /** The oauth token. */
+    private final OAuth2Credential oauth;
+
     /** The default cooldown length. */
     private final int defaultCoolDown;
 
@@ -30,9 +37,9 @@ public class TwitchComponent {
     public TwitchComponent(DegenBot bot, String provider, String token, String url, String defaultCD) {
         this.degenbot = bot;
         this.defaultCoolDown = Integer.parseInt(defaultCD);
-        OAuth2Credential credential = new OAuth2Credential(provider, token);
+        this.oauth = new OAuth2Credential(provider, token);
         this.component = TwitchClientBuilder.builder()
-                .withDefaultAuthToken(credential)
+                .withDefaultAuthToken(this.oauth)
                 .withEnableHelix(true)
                 //.withEnableChat(true)
                 //.withChatAccount(credential)
@@ -49,11 +56,13 @@ public class TwitchComponent {
                 // If on cooldown, just ignore everything
                 return;
             }
+            UserList list = this.component.getHelix().getUsers(oauth.getAccessToken(), null, Arrays.asList(event.getChannel().getName())).execute();
+            User user = list.getUsers().get(0);
             String link = this.twitchURL + event.getChannel().getName().toLowerCase();
-            String category = this.twitchURL + "directory/game/" + event.getStream().getGameName();
-            TwitchStream streamInfo = new TwitchStream(event.getChannel().getName(), event.getChannel().getId(),
+            TwitchStream streamInfo = new TwitchStream(event.getChannel().getName(), user.getDisplayName(),
                     event.getStream().getTitle(), event.getStream().getGameName(),  link,
-                    event.getStream().getThumbnailUrl(1280, 720)+"?t="+System.currentTimeMillis(), category);
+                    event.getStream().getThumbnailUrl(1280, 720)+"?t="+System.currentTimeMillis(),
+                    user.getProfileImageUrl() +"?t="+System.currentTimeMillis(), user.getDescription());
             this.degenbot.postLiveChannel(streamInfo);
         });
 

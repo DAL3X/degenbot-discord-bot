@@ -12,11 +12,13 @@ public class EmbedFactory {
     /** Create and returns a go live embed to post in a discord text channel out of a TwitchStream data object. */
     public static MessageEmbed createEmbed(TwitchStream stream) {
         EmbedBuilder builder = new EmbedBuilder();
-        builder.setAuthor(stream.getName() + " just went live!", stream.getLink());
+        builder.setAuthor(stream.getDisplayName() + " just went live!", stream.getLink(), stream.getLogoURL());
+        builder.setThumbnail(stream.getLogoURL());
         builder.setColor(new Color(96,20,196));
         builder.setTitle(stream.getTitle(), stream.getLink());
         builder.setImage(stream.getPictureURL());
         builder.addField("Category: ", stream.getGame(), false);
+        builder.setFooter(stream.getDescription());
         return builder.build();
     }
 

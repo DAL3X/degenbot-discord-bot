@@ -7,8 +7,8 @@ public class TwitchStream {
 
     /** The channel name */
     String name;
-    /** The channel id */
-    String channelID;
+    /** The channel display name */
+    String displayName;
     /** The stream title */
     String title;
     /** The stream category */
@@ -17,18 +17,21 @@ public class TwitchStream {
     String link;
     /** A URL for the stream thumbnail */
     String pictureURL;
-    /** A URL to the streams category */
-    String categoryURL;
+    /** A URL for the streamer's channel logo */
+    String logoURL;
+    /** The streamer's channel description */
+    String description;
 
     /** Creates a TwitchStream object to encapsulate all given variables */
-    public TwitchStream(String name, String channelID, String title, String game, String link, String pictureURL, String categoryURL) {
+    public TwitchStream(String name, String displayName, String title, String game, String link, String pictureURL, String logoURL, String description) {
         this.name = name;
-        this.channelID = channelID;
+        this.displayName = displayName;
         this.title = title;
         this.game = game;
         this.link = link;
         this.pictureURL = pictureURL;
-        this.categoryURL = categoryURL;
+        this.logoURL = logoURL;
+        this.description = description;
     }
 
     /** Returns the channel name */
@@ -54,5 +57,20 @@ public class TwitchStream {
     /** Returns a URL for the stream thumbnail */
     public String getPictureURL() {
         return pictureURL;
+    }
+
+    /** Returns the channel display name */
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    /** Returns the streamer's channel description */
+    public String getDescription() {
+        return description;
+    }
+
+    /** Returns a URL for the streamer's channel logo */
+    public String getLogoURL() {
+        return logoURL;
     }
 }
