@@ -7,6 +7,8 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 /**
  * The discord component of the bot. It is responsible all for interactions with the discord API.
@@ -45,11 +47,11 @@ public class DiscordComponent {
         TextChannel channel = component.getTextChannelById(targetChannel);
         if (channel != null) {
             MessageEmbed embed = EmbedFactory.createEmbed(stream);
-            // Create embed (because it takes some time), then post optional message, then post embed.
-            if (!message.equals("")) {
-                channel.sendMessage(message).queue();
-            }
-            channel.sendMessageEmbeds(embed).queue();
+            MessageCreateData messageData = new MessageCreateBuilder()
+                    .setContent(message)
+                    .setEmbeds(embed)
+                    .build();
+            channel.sendMessage(messageData).queue();
         }
     }
 
