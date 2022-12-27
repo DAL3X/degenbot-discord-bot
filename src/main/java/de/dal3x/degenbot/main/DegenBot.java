@@ -10,11 +10,10 @@ import de.dal3x.degenbot.twitch.TwitchComponent;
 import de.dal3x.degenbot.structures.TwitchStream;
 import io.github.cdimascio.dotenv.Dotenv;
 
+import javax.sound.midi.Track;
 import java.io.File;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -64,17 +63,14 @@ public class DegenBot {
 
     /** Delegates the live post to the discord component. */
     public void postLiveChannel(TwitchStream stream) {
-        String targetChannel = this.infoPacket.getDiscordDefaultTarget();
-        TrackingInfo track = this.infoPacket.getTracking().get(stream.getName().toLowerCase());
-        if (!track.getChannel().equals("")) {
-            // If a non default channel is set, overwrite it here
-            targetChannel = track.getChannel();
-        }
-        if (!track.getMessage().equals("")) {
-            discord.postLiveNotification(targetChannel, stream, track.getMessage());
-        }
-        else {
-            discord.postLiveNotification(targetChannel, stream);
+        List<TrackingInfo> trackList = this.infoPacket.getTracking().get(stream.getName().toLowerCase());
+        for (TrackingInfo track : trackList) {
+            String targetChannel = track.getChannel();
+            if (!track.getMessage().equals("")) {
+                discord.postLiveNotification(targetChannel, stream, track.getMessage());
+            } else {
+                discord.postLiveNotification(targetChannel, stream);
+            }
         }
     }
 
@@ -98,21 +94,33 @@ public class DegenBot {
     }
 
     /** Adds a channel with the given name, target channel and optional message to the list of tracked channels and saves it. */
-    public void addToTrackingList(String name, String channel, String message) {
-        Map<String, TrackingInfo> tracking = this.infoPacket.getTracking();
-        tracking.put(name.toLowerCase(), new TrackingInfo(channel, message));
-        this.infoPacket.setTracking(tracking);
-        this.twitch.registerLiveListener(name);
+    public void addToTrackingList(String name, String server, String channel, String message) {
+        if (!this.infoPacket.getTracking().containsKey(name.toLowerCase())) {
+            this.twitch.registerLiveListener(name);
+        }
+        this.infoPacket.addTracking(name.toLowerCase(), new TrackingInfo(server, channel, message));
         saveInfoPacket();
     }
 
     /** Removes a channel with the given name from the list of tracked channels and saves it. */
-    public void removeFromTrackingList(String name) {
-        Map<String, TrackingInfo> tracking = this.infoPacket.getTracking();
-        tracking.remove(name.toLowerCase());
-        this.cooldown.remove(name.toLowerCase());
+    public void removeFromTrackingList(String name, String server) {
+        Map<String, List<TrackingInfo>> tracking = this.infoPacket.getTracking();
+        List<TrackingInfo> list = tracking.get(name);
+        List<Integer> toRemove = new LinkedList<>();
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).getServer().equalsIgnoreCase(server)) {
+                toRemove.add(i);
+            }
+        }
+        for (int remove : toRemove) {
+            list.remove(remove);
+        }
+        if (list.isEmpty()) {
+            this.cooldown.remove(name.toLowerCase());
+            this.twitch.unregisterLiveListener(name);
+        }
+        tracking.put(name, list);
         this.infoPacket.setTracking(tracking);
-        this.twitch.unregisterLiveListener(name);
         saveInfoPacket();
     }
 
@@ -140,12 +148,6 @@ public class DegenBot {
         this.cooldown.add(name.toLowerCase());
         Runnable task = () -> {this.cooldown.remove(name.toLowerCase());};
         this.executor.schedule(task, minutes, TimeUnit.MINUTES);
-    }
-
-    /** Changes and saves the channel ID of the default discord channel to post notifications in. */
-    public void updateDiscordDefaultTarget(String id) {
-        this.infoPacket.setDiscordDefaultTarget(id);
-        saveInfoPacket();
     }
 
     /** Returns the InfoPacket containing all life values for this bot */

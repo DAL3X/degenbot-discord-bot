@@ -28,14 +28,11 @@ public class CommandExecutor extends ListenerAdapter {
         CommandListUpdateAction commands = jda.updateCommands();
         commands.addCommands(Commands.slash("degen_add", CommandDescriptions.add)
             .addOptions(new OptionData(OptionType.STRING, "twitch-channel-id", CommandDescriptions.add).setRequired(true))
-            .addOptions(new OptionData(OptionType.STRING, "discord-channel-id", CommandDescriptions.add).setRequired(false))
+            .addOptions(new OptionData(OptionType.STRING, "discord-channel-id", CommandDescriptions.add).setRequired(true))
             .addOptions(new OptionData(OptionType.STRING, "message", CommandDescriptions.add).setRequired(false))
             .setDefaultPermissions(DefaultMemberPermissions.DISABLED).setGuildOnly(true));
         commands.addCommands(Commands.slash("degen_remove", CommandDescriptions.remove)
                 .addOptions(new OptionData(OptionType.STRING, "twitch-channel-id", CommandDescriptions.remove).setRequired(true))
-                .setDefaultPermissions(DefaultMemberPermissions.DISABLED).setGuildOnly(true));
-        commands.addCommands(Commands.slash("degen_default", CommandDescriptions.remove)
-                .addOptions(new OptionData(OptionType.STRING, "discord-channel-id", CommandDescriptions.mark).setRequired(true))
                 .setDefaultPermissions(DefaultMemberPermissions.DISABLED).setGuildOnly(true));
         commands.addCommands(Commands.slash("degen_list", CommandDescriptions.list)
                 .setDefaultPermissions(DefaultMemberPermissions.DISABLED).setGuildOnly(true));
@@ -58,18 +55,14 @@ public class CommandExecutor extends ListenerAdapter {
                 if (event.getOption("message") != null) {
                     addMessage = event.getOption("message").getAsString();
                 }
-                bot.addToTrackingList(addChannelName, addDiscordChannel, addMessage);
+                bot.addToTrackingList(addChannelName, event.getGuild().getId(), addDiscordChannel, addMessage);
                 event.reply("Streamer added to the notification list!").queue();
                 break;
             case "degen_remove":
                 String removeChannelName = event.getOption("twitch-channel-id").getAsString();
-                bot.removeFromTrackingList(removeChannelName);
+                String serverID = event.getGuild().getId();
+                bot.removeFromTrackingList(removeChannelName, serverID);
                 event.reply("Streamer removed from the notification list!").queue();
-                break;
-            case "degen_default":
-                String markChannelID = event.getOption("discord-channel-id").getAsString();
-                bot.updateDiscordDefaultTarget(markChannelID);
-                event.reply("Text channel marked as go live notification channel!").queue();
                 break;
             case "degen_list":
                 // Use "```" to enforce chat style and prevent styling errors
