@@ -5,4 +5,4 @@ Can be used on multiple servers for monitoring multiple twitch channels.
 The software is configured to use local environment files, but can be changed to use system environments.
 The repository includes an example environment file, that needs to be placed next to the executable .jar file when using local environment files.
 # Build
-Use maven and the provided maven config files to import and build the project.
+Use gradle and the provided gradle config files to import and build the project.
