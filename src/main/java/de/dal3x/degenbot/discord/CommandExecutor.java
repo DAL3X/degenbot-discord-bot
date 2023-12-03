@@ -65,8 +65,16 @@ public class CommandExecutor extends ListenerAdapter {
                 event.reply("Streamer removed from the notification list!").queue();
                 break;
             case "degen_list":
+                String reply = "";
+                for (String key : bot.getInfoPacket().getTracking().keySet()) {
+                    for (int i = 0; i < bot.getInfoPacket().getTracking().get(key).size(); i++) {
+                        if (bot.getInfoPacket().getTracking().get(key).get(i).getServer() == event.getGuild().getId()) {
+                            reply = reply + " " + key;
+                        }
+                    }
+                }
                 // Use "```" to enforce chat style and prevent styling errors
-                event.reply("Streamer on the notification list: " + "```" + bot.getInfoPacket().getTracking().keySet() + "```").queue();
+                event.reply("Streamer on the notification list: " + "```" + reply + "```").queue();
                 break;
             default:
                 // Do nothing
