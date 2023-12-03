@@ -10,7 +10,6 @@ import de.dal3x.degenbot.twitch.TwitchComponent;
 import de.dal3x.degenbot.structures.TwitchStream;
 import io.github.cdimascio.dotenv.Dotenv;
 
-import javax.sound.midi.Track;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -89,7 +88,7 @@ public class DegenBot {
                 twitch.registerLiveListener(channel);
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            this.infoPacket = new InfoPacket();
         }
     }
 
@@ -146,7 +145,7 @@ public class DegenBot {
             return;
         }
         this.cooldown.add(name.toLowerCase());
-        Runnable task = () -> {this.cooldown.remove(name.toLowerCase());};
+        Runnable task = () -> this.cooldown.remove(name.toLowerCase());
         this.executor.schedule(task, minutes, TimeUnit.MINUTES);
     }
 
