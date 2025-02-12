@@ -36,6 +36,12 @@ public class CommandExecutor extends ListenerAdapter {
                 .setDefaultPermissions(DefaultMemberPermissions.DISABLED).setGuildOnly(true));
         commands.addCommands(Commands.slash("degen_list", CommandDescriptions.list)
                 .setDefaultPermissions(DefaultMemberPermissions.DISABLED).setGuildOnly(true));
+        commands.addCommands(Commands.slash("degen_bacon_add", CommandDescriptions.bacon_add)
+                .addOptions(new OptionData(OptionType.STRING, "user-id", CommandDescriptions.bacon_add).setRequired(true))
+                .setDefaultPermissions(DefaultMemberPermissions.DISABLED).setGuildOnly(true));
+        commands.addCommands(Commands.slash("degen_bacon_remove", CommandDescriptions.bacon_remove)
+                .addOptions(new OptionData(OptionType.STRING, "user-id", CommandDescriptions.bacon_remove).setRequired(true))
+                .setDefaultPermissions(DefaultMemberPermissions.DISABLED).setGuildOnly(true));
         commands.queue();
     }
     /** Executes commands when detected. */
@@ -75,6 +81,22 @@ public class CommandExecutor extends ListenerAdapter {
                 }
                 // Use "```" to enforce chat style and prevent styling errors
                 event.reply("Streamer on the notification list: " + "```" + reply + "```").queue();
+                break;
+            case "degen_bacon_add":
+                String add_id;
+                if (event.getOption("user-id") != null) {
+                    add_id = event.getOption("user-id").getAsString();
+                    bot.addToBaconTrackingList(add_id, event.getGuild().getId());
+                    event.reply("User added to the bacon list!").queue();
+                }
+                break;
+            case "degen_bacon_remove":
+                String remove_id;
+                if (event.getOption("user-id") != null) {
+                    remove_id = event.getOption("user-id").getAsString();
+                    bot.removeFromBaconTrackingList(remove_id, event.getGuild().getId());
+                    event.reply("User removed from the bacon list!").queue();
+                }
                 break;
             default:
                 // Do nothing

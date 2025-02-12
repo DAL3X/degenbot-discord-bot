@@ -7,4 +7,7 @@ public class CommandDescriptions {
     public static String remove = "Removes a streamer from the go live notify list.";
     public static String list = "Lists all channels on the go live notify list,";
 
+    public static String bacon_add = "Add to bacon list.";
+    public static String bacon_remove = "Remove from bacon list.";
+
 }

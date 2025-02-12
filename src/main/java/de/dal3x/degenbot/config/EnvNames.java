@@ -1,5 +1,6 @@
 package de.dal3x.degenbot.config;
 
+/** Encapsulates all the config labels statically */
 public enum EnvNames {
     TWITCH_PROVIDER("TWITCH_PROVIDER"),
     TWITCH_TOKEN("TWITCH_TOKEN"),

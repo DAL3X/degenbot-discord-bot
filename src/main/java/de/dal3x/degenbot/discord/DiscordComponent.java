@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
@@ -19,11 +20,13 @@ public class DiscordComponent {
     private final JDA component;
 
     /** Builds the Discord Component by opening a connection with a bot-token and activity for the online bot. */
-    public DiscordComponent(DegenBot bot, String token, String activity) {
+    public DiscordComponent(DegenBot bot, String token, String activity, String cooldownLength) {
         JDABuilder builder = JDABuilder.createDefault(token);
         builder.setActivity(Activity.playing(activity));
         CommandExecutor executor = new CommandExecutor(bot);
         builder.addEventListeners(executor);
+        MessageListener messageListener = new MessageListener(bot, cooldownLength);
+        builder.addEventListeners(messageListener);
         this.component = builder.build();
         try {
             this.component.awaitReady();
@@ -31,6 +34,7 @@ public class DiscordComponent {
             throw new RuntimeException(e);
         }
         executor.registerCommands(this.component);
+        builder.enableIntents(GatewayIntent.MESSAGE_CONTENT);
     }
 
     /** Posts the live notification for a given stream without a message. */

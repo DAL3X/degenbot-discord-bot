@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 public class DegenBot {
 
     /** Determines if the bot is in testing mode. If this is true, the bot will post events without cool-downs. */
-    private final boolean testMode = false;
+    public static final boolean testMode = false;
 
     private final boolean useLocalEnvFile = true;
 
@@ -42,6 +42,9 @@ public class DegenBot {
 
     /** The info packet containing all tracked channels and target discord channels. */
     private InfoPacket infoPacket;
+
+    /** Contains all user ids, that are currently being tracked for bacon reaction */
+    private List<Long> trackedBaconIDs;
 
     /** Creates a bot instance. Should only be called once on startup. */
     public DegenBot() {
@@ -67,7 +70,8 @@ public class DegenBot {
         }
         this.twitch = new TwitchComponent(this, provider, twitchToken, url, cooldown);
         loadInfoPacket();
-        this.discord = new DiscordComponent(this, discordToken, activity);
+        this.discord = new DiscordComponent(this, discordToken, activity, cooldown);
+
     }
 
     /** Loads the environment to obtain all needed constants and tokens. */
@@ -110,6 +114,29 @@ public class DegenBot {
         } catch (IOException e) {
             this.infoPacket = new InfoPacket();
         }
+    }
+
+    /** Start bacon tracking a given user id with the given server id */
+    public void addToBaconTrackingList(String id, String server) {
+        this.infoPacket.addBaconTracking(id, server);
+        saveInfoPacket();
+    }
+
+    /** Stop bacon tracking a given user id with the given server id */
+    public void removeFromBaconTrackingList(String id, String server) {
+        Map<String, Set<String>> tracking = this.infoPacket.getBaconTracking();
+        if (tracking.containsKey(id)) {
+            Set<String> servers = tracking.get(id);
+            servers.remove(server);
+            if (servers.isEmpty()) {
+                tracking.remove(id);
+            }
+            else {
+                tracking.put(id, servers);
+            }
+        }
+        this.infoPacket.setBaconTracking(tracking);
+        saveInfoPacket();
     }
 
     /** Adds a channel with the given name, target channel and optional message to the list of tracked channels and saves it. */
@@ -161,7 +188,7 @@ public class DegenBot {
 
     /** Sets a channel cooldown to a specified number of minutes. */
     public void setCooldown(String name, int minutes) {
-        if (this.testMode) {
+        if (testMode) {
             return;
         }
         this.cooldown.add(name.toLowerCase());
