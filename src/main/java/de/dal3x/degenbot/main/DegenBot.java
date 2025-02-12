@@ -3,6 +3,7 @@ package de.dal3x.degenbot.main;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import de.dal3x.degenbot.config.DefaultValues;
+import de.dal3x.degenbot.config.EnvNames;
 import de.dal3x.degenbot.discord.DiscordComponent;
 import de.dal3x.degenbot.structures.InfoPacket;
 import de.dal3x.degenbot.structures.TrackingInfo;
@@ -25,6 +26,8 @@ public class DegenBot {
     /** Determines if the bot is in testing mode. If this is true, the bot will post events without cool-downs. */
     private final boolean testMode = false;
 
+    private final boolean useLocalEnvFile = true;
+
     /** Set of all channel ids that are on cool-down. */
     private final Set<String> cooldown;
 
@@ -42,12 +45,29 @@ public class DegenBot {
 
     /** Creates a bot instance. Should only be called once on startup. */
     public DegenBot() {
-        Dotenv environment = loadEnv();
         this.cooldown = new HashSet<>();
         this.executor = Executors.newSingleThreadScheduledExecutor();
-        this.twitch = new TwitchComponent(this, environment.get("TWITCH_PROVIDER"), environment.get("TWITCH_TOKEN"), environment.get("TWITCH_URL"), environment.get("COOLDOWN"));
+        String provider, twitchToken, url, cooldown, discordToken, activity;
+        if (useLocalEnvFile) {
+            Dotenv environment = loadEnv();
+            provider = environment.get(EnvNames.TWITCH_PROVIDER.toString());
+            twitchToken = environment.get(EnvNames.TWITCH_TOKEN.toString());
+            url = environment.get(EnvNames.TWITCH_URL.toString());
+            cooldown = environment.get(EnvNames.COOLDOWN.toString());
+            discordToken = environment.get(EnvNames.DISCORD_TOKEN.toString());
+            activity = environment.get(EnvNames.ACTIVITY.toString());
+        }
+        else {
+            provider = System.getenv().get(EnvNames.TWITCH_PROVIDER.toString());
+            twitchToken = System.getenv().get(EnvNames.TWITCH_TOKEN.toString());
+            url = System.getenv().get(EnvNames.TWITCH_URL.toString());
+            cooldown = System.getenv().get(EnvNames.COOLDOWN.toString());
+            discordToken = System.getenv().get(EnvNames.DISCORD_TOKEN.toString());
+            activity = System.getenv().get(EnvNames.ACTIVITY.toString());
+        }
+        this.twitch = new TwitchComponent(this, provider, twitchToken, url, cooldown);
         loadInfoPacket();
-        this.discord = new DiscordComponent(this, environment.get("DISCORD_TOKEN"), environment.get("ACTIVITY"));
+        this.discord = new DiscordComponent(this, discordToken, activity);
     }
 
     /** Loads the environment to obtain all needed constants and tokens. */
@@ -65,7 +85,7 @@ public class DegenBot {
         List<TrackingInfo> trackList = this.infoPacket.getTracking().get(stream.getName().toLowerCase());
         for (TrackingInfo track : trackList) {
             String targetChannel = track.getChannel();
-            if (!track.getMessage().equals("")) {
+            if (!track.getMessage().isEmpty()) {
                 discord.postLiveNotification(targetChannel, stream, track.getMessage());
             } else {
                 discord.postLiveNotification(targetChannel, stream);

@@ -68,7 +68,7 @@ public class CommandExecutor extends ListenerAdapter {
                 String reply = "";
                 for (String key : bot.getInfoPacket().getTracking().keySet()) {
                     for (int i = 0; i < bot.getInfoPacket().getTracking().get(key).size(); i++) {
-                        if (bot.getInfoPacket().getTracking().get(key).get(i).getServer() == event.getGuild().getId()) {
+                        if (bot.getInfoPacket().getTracking().get(key).get(i).getServer().equals(event.getGuild().getId())) {
                             reply = reply + " " + key;
                         }
                     }

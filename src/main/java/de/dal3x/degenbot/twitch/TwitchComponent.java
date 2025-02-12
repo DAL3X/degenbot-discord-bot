@@ -11,7 +11,7 @@ import com.github.twitch4j.helix.domain.UserList;
 import de.dal3x.degenbot.main.DegenBot;
 import de.dal3x.degenbot.structures.TwitchStream;
 
-import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * The twitch component of the bot. It is responsible all for interactions with the twitch API.
@@ -41,8 +41,6 @@ public class TwitchComponent {
         this.component = TwitchClientBuilder.builder()
                 .withDefaultAuthToken(this.oauth)
                 .withEnableHelix(true)
-                //.withEnableChat(true)
-                //.withChatAccount(credential)
                 .withDefaultEventHandler(SimpleEventHandler.class)
                 .build();
         this.twitchURL = url;
@@ -56,7 +54,7 @@ public class TwitchComponent {
                 // If on cooldown, just ignore everything
                 return;
             }
-            UserList list = this.component.getHelix().getUsers(oauth.getAccessToken(), null, Arrays.asList(event.getChannel().getName())).execute();
+            UserList list = this.component.getHelix().getUsers(oauth.getAccessToken(), null, Collections.singletonList(event.getChannel().getName())).execute();
             User user = list.getUsers().get(0);
             String link = this.twitchURL + event.getChannel().getName().toLowerCase();
             TwitchStream streamInfo = new TwitchStream(event.getChannel().getName(), user.getDisplayName(),
