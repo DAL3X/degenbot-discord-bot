@@ -43,8 +43,6 @@ public class DegenBot {
     /** The info packet containing all tracked channels and target discord channels. */
     private InfoPacket infoPacket;
 
-    /** Contains all user ids, that are currently being tracked for bacon reaction */
-    private List<Long> trackedBaconIDs;
 
     /** Creates a bot instance. Should only be called once on startup. */
     public DegenBot() {
@@ -70,7 +68,7 @@ public class DegenBot {
         }
         this.twitch = new TwitchComponent(this, provider, twitchToken, url, cooldown);
         loadInfoPacket();
-        this.discord = new DiscordComponent(this, discordToken, activity, cooldown);
+        this.discord = new DiscordComponent(this, discordToken, activity);
 
     }
 

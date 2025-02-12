@@ -19,24 +19,20 @@ public class MessageListener extends ListenerAdapter {
     /** Instance of the running bot. Required to get up-to-date tracking info */
     DegenBot bot;
     Map<String, Set<String>> cooldowns;
-    int cooldownLength;
 
-    public MessageListener(DegenBot bot, String cooldownLengthString) {
+    public MessageListener(DegenBot bot) {
         this.bot = bot;
         cooldowns = new HashMap<>();
-        this.cooldownLength = Integer.valueOf(cooldownLengthString);
     }
 
     private boolean hasCooldown(String id, String server) {
         if (cooldowns.containsKey(id)) {
-            if (cooldowns.get(id).contains(server)) {
-                return true;
-            }
+            return cooldowns.get(id).contains(server);
         }
         return false;
     }
 
-    private void setCooldown(String id, String server, int minutes) {
+    private void setCooldown(String id, String server) {
         Set<String> servers;
         if (cooldowns.containsKey(id)) {
             servers = cooldowns.get(id);
@@ -48,7 +44,7 @@ public class MessageListener extends ListenerAdapter {
         servers.add(server);
         this.cooldowns.put(id, servers);
         Runnable task = () -> this.cooldowns.remove(id);
-        Executors.newSingleThreadScheduledExecutor().schedule(task, minutes, TimeUnit.MINUTES);
+        Executors.newSingleThreadScheduledExecutor().schedule(task, 1440, TimeUnit.MINUTES); //60*24=1440 minutes equals 24 hours
     }
 
     @Override
@@ -60,7 +56,7 @@ public class MessageListener extends ListenerAdapter {
             if (trackingInfo.get(id).contains(event.getGuild().getId()) && (!hasCooldown(id, event.getGuild().getId())) || DegenBot.testMode) {
                 Message message = event.getMessage();
                 message.addReaction(Emoji.fromUnicode("\uD83E\uDD53")).queue();
-                setCooldown(id, event.getGuild().getId(), cooldownLength);
+                setCooldown(id, event.getGuild().getId()); //60*24=1440 minutes equals 24 hours
             }
         }
     }

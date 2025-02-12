@@ -20,12 +20,12 @@ public class DiscordComponent {
     private final JDA component;
 
     /** Builds the Discord Component by opening a connection with a bot-token and activity for the online bot. */
-    public DiscordComponent(DegenBot bot, String token, String activity, String cooldownLength) {
+    public DiscordComponent(DegenBot bot, String token, String activity) {
         JDABuilder builder = JDABuilder.createDefault(token);
         builder.setActivity(Activity.playing(activity));
         CommandExecutor executor = new CommandExecutor(bot);
         builder.addEventListeners(executor);
-        MessageListener messageListener = new MessageListener(bot, cooldownLength);
+        MessageListener messageListener = new MessageListener(bot);
         builder.addEventListeners(messageListener);
         this.component = builder.build();
         try {
