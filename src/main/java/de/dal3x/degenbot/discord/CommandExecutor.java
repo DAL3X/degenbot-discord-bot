@@ -79,8 +79,13 @@ public class CommandExecutor extends ListenerAdapter {
                         }
                     }
                 }
-                // Use "```" to enforce chat style and prevent styling errors
-                event.reply("Streamer on the notification list: " + "```" + reply + "```").queue();
+                if (reply.isEmpty()) {
+                    event.reply("No streamer on the notification list").queue();
+                }
+                else {
+                    // Use "```" to enforce chat style and prevent styling errors
+                    event.reply("Streamer on the notification list: " + "```" + reply + "```").queue();
+                }
                 break;
             case "degen_bacon_add":
                 String add_id;
