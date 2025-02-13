@@ -18,6 +18,8 @@ public class MessageListener extends ListenerAdapter {
 
     /** Instance of the running bot. Required to get up-to-date tracking info */
     DegenBot bot;
+
+    /** Map of cooldowns for server ids per user */
     Map<String, Set<String>> cooldowns;
 
     public MessageListener(DegenBot bot) {
@@ -25,6 +27,7 @@ public class MessageListener extends ListenerAdapter {
         cooldowns = new HashMap<>();
     }
 
+    /** Checks if the given user id is on cooldown for the given server */
     private boolean hasCooldown(String id, String server) {
         if (cooldowns.containsKey(id)) {
             return cooldowns.get(id).contains(server);
@@ -32,6 +35,7 @@ public class MessageListener extends ListenerAdapter {
         return false;
     }
 
+    /** Sets bacon cooldown for a user id for the given server */
     private void setCooldown(String id, String server) {
         Set<String> servers;
         if (cooldowns.containsKey(id)) {
