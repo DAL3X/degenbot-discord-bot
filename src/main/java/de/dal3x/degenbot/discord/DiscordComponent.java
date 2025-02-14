@@ -7,7 +7,6 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
@@ -34,7 +33,6 @@ public class DiscordComponent {
             throw new RuntimeException(e);
         }
         executor.registerCommands(this.component);
-        builder.enableIntents(GatewayIntent.MESSAGE_CONTENT);
     }
 
     /** Posts the live notification for a given stream without a message. */
