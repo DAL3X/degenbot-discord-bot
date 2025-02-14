@@ -59,8 +59,8 @@ public class MessageListener extends ListenerAdapter {
             System.out.println(event.getMessage().getContentRaw());
             if (trackingInfo.get(id).contains(event.getGuild().getId()) && (!hasCooldown(id, event.getGuild().getId())) || DegenBot.testMode) {
                 Message message = event.getMessage();
-                message.addReaction(Emoji.fromUnicode("\uD83E\uDD53")).queue();
-                setCooldown(id, event.getGuild().getId()); //60*24=1440 minutes equals 24 hours
+                message.addReaction(Emoji.fromUnicode("\uD83E\uDD53")).queue(); // bacon unicode
+                setCooldown(id, event.getGuild().getId());
             }
         }
     }
